@@ -2,10 +2,10 @@ const { Schema , model , models, default: mongoose } = require('mongoose')
 
 const SubscriptionSchema = new Schema({
 
-    productURL : {
+    product_id : {
         type : mongoose.Types.ObjectId ,
         ref : 'Product',
-        required : [true , 'product URL is required'],
+        required : [true , 'product id is required'],
     },
     userEmail : {
         type : String ,

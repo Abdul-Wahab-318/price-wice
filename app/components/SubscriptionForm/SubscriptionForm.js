@@ -9,6 +9,7 @@ export default function SubscriptionForm() {
     const [itemURL , setItemURL] = useState("")
     const [brand , setBrand] = useState('')
     const [email , setEmail] = useState('')
+    const [loading , setLoading] = useState(false)
 
     const getBrandName = (url) => {
         try{
@@ -55,19 +56,27 @@ export default function SubscriptionForm() {
 
     const handleSubmit = async (e) => {
         try{
+            setLoading(true)
             let parsedURL = new URL(itemURL)
-
-            let body = { brand : brand , URL : itemURL , email}
-            console.log(body)
+            let body = { brand : brand , url : itemURL , email}
             let response = await axios.post('/api/subscribe/' , body)
+
+            if(response.status === 201)
+                toast.success("Subscribed to product")
+
             console.log(response)
         }
         catch(err){
             if (err instanceof TypeError) {
                 toast.error("Invalid product URL")
-                return
             }
-            console.log(err)
+            if(err.status === 400)
+                toast.error(err.response.data.message)
+
+            console.error(err)
+        }
+        finally{
+            setLoading(false)
         }
     }
 
@@ -91,7 +100,12 @@ export default function SubscriptionForm() {
                 </select>
             </div>
         </div>
+        {
+            loading ? 
+            <button className="bg-slate-300 px-4 py-2 rounded-md text-white mt-6" disabled  type='submit'>Submit</button>
+            :
             <button className="bg-black px-4 py-2 rounded-md text-white mt-6"  type='submit' onClick={handleSubmit}>Submit</button>
+        }
         <ToastContainer />
     </form>
   )

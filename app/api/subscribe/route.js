@@ -4,7 +4,7 @@ import Subscription from "@/models/Subscription"
 import connectToDB from "@/utils/connectToDB"
 import * as cheerio from 'cheerio';
 import axios from "axios"
-
+import { NextResponse } from 'next/server'
 
 const getProductPage = async (url) => {
   try{
@@ -51,8 +51,16 @@ const getProductPrice = (page) =>{
   let priceWrapper = $('.t4s-product-price')
 
   if(priceWrapper.length > 0){
+
+    let priceWrapperText = priceWrapper.text()
+    let priceMatched =  priceWrapperText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
+
+    if(priceMatched){
+      prices.add(cleanPrice(priceMatched[0]))
+    }
+
     priceWrapper.children().each((ind , el) =>{
-      console.log("child : " , ind )
+      console.log("child : " , $(el).text() )
       const innerText = $(el).text()
       let priceMatched = innerText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
 
@@ -73,7 +81,6 @@ const getProductPrice = (page) =>{
   }
 
   let sortedPrices = Array.from(prices).filter( price => price > 200 ).sort((a,b) => b-a) //sort and remove prices below 200 (delivery charge or null values)
-
   console.log("final prices : " , sortedPrices)
 
   //possible discount exists
@@ -81,23 +88,69 @@ const getProductPrice = (page) =>{
     let normalPrice = sortedPrices[0]
     let discountedPrice = sortedPrices[1]
 
-    return discountedPrice
+    return {discounted : discountedPrice , original : normalPrice}
   }
   else if( sortedPrices.length == 1 )
-    return sortedPrices[0]
+    return {discounted : null , original : sortedPrices[0]}
   else
-    return null
+    return {discounted : null , original : null}
 
 }
 
-export async function POST(req) {
+export async function POST(req , res) {
 
-  const body = await req.json();
-  const { URL } = body
-  const productPage = await getProductPage(URL)
-  const price = getProductPrice(productPage)
-  console.log('got da price baby : ' , price)
-  // Do something with the parsed body
+  try{
+    connectToDB()
 
-  return Response.json({ message: 'Hello World' })
+    const body = await req.json();
+    const { url , email , brand } = body
+    const parsed_url= new URL(url)
+    let product_url = parsed_url.origin + parsed_url.pathname
+    
+    let product_doc = await Product.findOne({'url' : product_url})
+
+    //if product already exists
+    if(product_doc) {
+
+      //if user tries to resubsribe with same mail to same product
+      let existingSubscription = await Subscription.findOne({'userEmail' : email , product_id : product_doc._id})
+      if(existingSubscription){
+        return NextResponse.json({message : 'Already subscribed to this product with same email'} , {status : 400})
+      }
+
+      let subscription = await Subscription.create({
+        product_id : product_doc._id ,
+        userEmail : email ,
+        brand
+      })
+
+      return NextResponse.json({message : 'Subscribed to product'} , {status : 201})
+    }
+
+
+    const productPage = await getProductPage(product_url)
+    const price = getProductPrice(productPage)
+    
+    console.log('prices :' , price)
+    console.log("product path : " , product_url)
+
+    if(price['discounted'] === null && price['original'] === null){
+      return NextResponse.json({message : "Could not find product price on the website. Are you sure the link is correct ?"} , {status:400})
+    }
+
+    let new_product = await Product.create({url : product_url})
+    let new_price = await ProductPrice.create({product_id : new_product._id , price : price['discounted'] ? price['discounted'] : price['original'] })
+    let subscription = await Subscription.create({
+      product_id : new_product._id ,
+      userEmail : email ,
+      brand
+    })
+
+    return NextResponse.json({message : 'Subscribed to product'} , {status:201})
+  }
+  catch(err){
+    console.log(JSON.stringify(err))
+    return NextResponse.json({message : 'Could not subscribe to product'} , {status:400})
+  }
+
 }

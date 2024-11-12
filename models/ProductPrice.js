@@ -2,10 +2,10 @@ const { Schema , model , models, default: mongoose } = require('mongoose')
 
 const ProductPriceSchema = new Schema({
 
-    productURL : {
+    product_id : {
         type : mongoose.Types.ObjectId ,
         ref : 'Product',
-        required : [true , 'product URL is required'],
+        required : [true , 'product _id is required'],
     },
     price : {
         type : Number ,

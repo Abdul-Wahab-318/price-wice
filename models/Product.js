@@ -2,7 +2,7 @@ const { Schema , model , models, default: mongoose } = require('mongoose')
 
 const ProductSchema = new Schema({
 
-    URL : {
+    url : {
         type : String ,
         required : [true , 'URL is required'],
         minLength : [2 , 'min length is 2 characters']
