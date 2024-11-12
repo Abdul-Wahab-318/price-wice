@@ -5,39 +5,7 @@ import connectToDB from "@/utils/connectToDB"
 import * as cheerio from 'cheerio';
 import axios from "axios"
 import { NextResponse } from 'next/server'
-
-const getProductPage = async (url) => {
-  try{
-    const response = await axios.get(url)
-
-    if(response.status === 200)
-      return response.data
-    else
-    {
-      console.log("error fetching product page")
-      return null
-    }
-  }
-  catch(err){
-    console.log(err)
-    return null
-  }
-}
-
-const cleanPrice = (price) => {
-
-  price = price.replace(/[^\d.]/g, '')
-
-  if(price[0] === '.')
-    return  parseInt(price.slice(1).replace(/[^\d.]/g, ''))
-
-  return parseInt(price.replace(/[^\d.]/g, ''))
-
-}
-
-const calculateDiscountPercentage = (discounted , normal) => {
-  return Math.round(100 - ( discounted / normal ) * 100)
-} 
+import { getProductPage , cleanPrice , sortPrices } from "@/utils/utils";
 
 const getProductPrice = (page) =>{
 
@@ -60,28 +28,28 @@ const getProductPrice = (page) =>{
     }
 
     priceWrapper.children().each((ind , el) =>{
-      console.log("child : " , $(el).text() )
+
       const innerText = $(el).text()
       let priceMatched = innerText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
 
       if(priceMatched)
         prices.add(cleanPrice(priceMatched[0]))
 
-      console.log("matched : " , priceMatched)
     })
   }
   else{
 
     let body = String($('body').html())
     let pricesMatched = body.matchAll(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/g)
+
     for (let el of pricesMatched){
       prices.add(cleanPrice(el[0]))
       console.log("matched : " ,el[0])
     }
   }
 
-  let sortedPrices = Array.from(prices).filter( price => price > 200 ).sort((a,b) => b-a) //sort and remove prices below 200 (delivery charge or null values)
-  console.log("final prices : " , sortedPrices)
+  let sortedPrices = sortPrices(Array.from(prices))
+  console.log("sorted prices : " , sortedPrices)
 
   //possible discount exists
   if(sortedPrices.length >= 2){

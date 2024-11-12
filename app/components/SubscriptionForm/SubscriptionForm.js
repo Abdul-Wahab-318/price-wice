@@ -36,7 +36,7 @@ export default function SubscriptionForm() {
         "beechtree",
         "gulahmed", //risky
         "edenrobe",
-        //"sanasaafinaz",
+        "sanasaafinaz",
         //"elan",
         "kayseria",
         "zarashahjahan",
