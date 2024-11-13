@@ -54,9 +54,9 @@ export async function POST(req , res) {
       userEmail : email ,
       brand
     })
-    console.log("Sending the fricking mail")
+
     let emailResponse = sendEmail(email , product_url)
-    console.log("Email response :" , emailResponse)
+
     return NextResponse.json({message : 'Subscribed to product'} , {status:201})
   }
   catch(err){

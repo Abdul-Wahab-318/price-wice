@@ -89,8 +89,8 @@ export const sendEmail = async (userEmail , product_url) =>{
             rejectUnauthorized : true
         },
         auth: {
-            user: process.env.EMAIL_ADDRESS, // your email
-            pass: process.env.EMAIL_PASS    // your email password or app-specific password
+            user: "price.wice.info@gmail.com", // your email
+            pass: "tzim fyta mpki lczo"    // your email password or app-specific password
         }
     });
     
@@ -104,6 +104,8 @@ export const sendEmail = async (userEmail , product_url) =>{
     };
 
     transporter.sendMail(mailOptions, function(err, data) {
+      console.log("err :  " , err)
+      console.log("email data : " , data)
       if (err) {
         console.log("Error " + err);
         return null
