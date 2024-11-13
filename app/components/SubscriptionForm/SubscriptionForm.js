@@ -62,7 +62,10 @@ export default function SubscriptionForm() {
             let response = await axios.post('/api/subscribe/' , body)
 
             if(response.status === 201)
-                toast.success("Subscribed to product")
+                toast.success(`Subscribed ! \n Please check your inbox or spam folder for confirmation` , {
+                    position: "bottom-center",
+                    autoClose: false
+                })
 
             console.log(response)
         }

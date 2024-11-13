@@ -7,7 +7,7 @@ let connectToDB = async () => {
         if( isConnected )
             return 
 
-        await mongoose.connect("mongodb://127.0.0.1:27017/pricewice")
+        await mongoose.connect(process.env.MONGODB_URI)
         isConnected = true
         console.log("Connected to Mongodb databse")
     }

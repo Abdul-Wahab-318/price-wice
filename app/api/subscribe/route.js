@@ -2,68 +2,9 @@ import Product from "@/models/Product"
 import ProductPrice from "@/models/ProductPrice"
 import Subscription from "@/models/Subscription"
 import connectToDB from "@/utils/connectToDB"
-import * as cheerio from 'cheerio';
-import axios from "axios"
 import { NextResponse } from 'next/server'
-import { getProductPage , cleanPrice , sortPrices } from "@/utils/utils";
+import { getProductPage , getProductPrice , cleanPrice , sortPrices  , sendEmail} from "@/utils/utils";
 
-const getProductPrice = (page) =>{
-
-  const $ = cheerio.load(page);
-  $('.baadmay-gateway-wrapper').remove() // remove installment plan information
-  $('body').find('script').remove() // remove stupid useless script tags that make life harder for me
-  $('body').find('a').remove() // remove
-  const prices = new Set()
-
-  //if website is built with shopify the price will be inside this element
-  let priceWrapper = $('.t4s-product-price')
-
-  if(priceWrapper.length > 0){
-
-    let priceWrapperText = priceWrapper.text()
-    let priceMatched =  priceWrapperText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
-
-    if(priceMatched){
-      prices.add(cleanPrice(priceMatched[0]))
-    }
-
-    priceWrapper.children().each((ind , el) =>{
-
-      const innerText = $(el).text()
-      let priceMatched = innerText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
-
-      if(priceMatched)
-        prices.add(cleanPrice(priceMatched[0]))
-
-    })
-  }
-  else{
-
-    let body = String($('body').html())
-    let pricesMatched = body.matchAll(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/g)
-
-    for (let el of pricesMatched){
-      prices.add(cleanPrice(el[0]))
-      console.log("matched : " ,el[0])
-    }
-  }
-
-  let sortedPrices = sortPrices(Array.from(prices))
-  console.log("sorted prices : " , sortedPrices)
-
-  //possible discount exists
-  if(sortedPrices.length >= 2){
-    let normalPrice = sortedPrices[0]
-    let discountedPrice = sortedPrices[1]
-
-    return {discounted : discountedPrice , original : normalPrice}
-  }
-  else if( sortedPrices.length == 1 )
-    return {discounted : null , original : sortedPrices[0]}
-  else
-    return {discounted : null , original : null}
-
-}
 
 export async function POST(req , res) {
 
@@ -91,10 +32,10 @@ export async function POST(req , res) {
         userEmail : email ,
         brand
       })
-
+      let emailRepsonse = sendEmail(email , product_url)
+      
       return NextResponse.json({message : 'Subscribed to product'} , {status : 201})
     }
-
 
     const productPage = await getProductPage(product_url)
     const price = getProductPrice(productPage)
@@ -114,6 +55,8 @@ export async function POST(req , res) {
       brand
     })
 
+    let emailRepsonse = sendEmail(email , product_url)
+    
     return NextResponse.json({message : 'Subscribed to product'} , {status:201})
   }
   catch(err){
