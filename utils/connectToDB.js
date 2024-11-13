@@ -7,7 +7,7 @@ let connectToDB = async () => {
         if( isConnected )
             return 
 
-        await mongoose.connect(process.env.MONGODB_URI)
+        await mongoose.connect("mongodb+srv://wahabmaliq:oQOAIjq1S9WdoXIB@cluster0.jyb0m.mongodb.net/pricewice?retryWrites=true&w=majority&appName=Cluster0")
         isConnected = true
         console.log("Connected to Mongodb databse")
     }

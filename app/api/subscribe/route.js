@@ -33,7 +33,7 @@ export async function POST(req , res) {
         brand
       })
       let emailRepsonse = sendEmail(email , product_url)
-
+      console.log("email response : " , emailRepsonse)
       return NextResponse.json({message : 'Subscribed to product'} , {status : 201})
     }
 
