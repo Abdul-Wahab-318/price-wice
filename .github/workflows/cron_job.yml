@@ -1,0 +1,20 @@
+name: Run Cron Job
+
+on:
+  push:
+      branches:
+      - main  # Optional: only trigger on push to main branch
+  schedule:
+    - cron: "* * * * *"
+
+jobs:
+  send_post_request:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send POST request
+        env:
+          API_ENDPOINT: "https://price-wice-q99r.vercel.app/api/cron/daily-check"
+        run: |
+          curl -X POST $API_ENDPOINT \
+          -H "Content-Type: application/json" \

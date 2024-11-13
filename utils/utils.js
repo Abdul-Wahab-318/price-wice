@@ -78,7 +78,7 @@ export const getProductPrice = (page) =>{
 
 }
 
-export const sendEmail = async (userEmail , product_url) =>{
+export const sendWelcomeEmail = async (userEmail , product_url) =>{
   try{
 
     console.log("hello it is me i am going to send the email now let us depart : " , userEmail , product_url)
@@ -136,6 +136,6 @@ export const sortPrices = (prices) => {
       return filteredPrices.sort( (a,b) => b-a)
 }
   
-export const calculateDiscountPercentage = (discounted , normal) => {
-    return Math.round(100 - ( discounted / normal ) * 100)
+export const calculateChangePercentage = (discounted , normal) => {
+  return Math.round(100 - ( discounted / normal ) * 100)
 } 

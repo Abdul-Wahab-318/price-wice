@@ -3,14 +3,13 @@ import ProductPrice from "@/models/ProductPrice"
 import Subscription from "@/models/Subscription"
 import connectToDB from "@/utils/connectToDB"
 import { NextResponse } from 'next/server'
-import { getProductPage , getProductPrice , cleanPrice , sortPrices  , sendEmail} from "@/utils/utils";
+import { getProductPage , getProductPrice , sendWelcomeEmail} from "@/utils/utils";
 
 
 export async function POST(req , res) {
 
   try{
-    connectToDB()
-
+    await connectToDB()
     const body = await req.json();
     const { url , email , brand } = body
     const parsed_url= new URL(url)
@@ -32,7 +31,7 @@ export async function POST(req , res) {
         userEmail : email ,
         brand
       })
-      let emailRepsonse = await sendEmail(email , product_url)
+      let emailRepsonse = await sendWelcomeEmail(email , product_url)
       return NextResponse.json({message : 'Subscribed to product'} , {status : 201})
     }
 
@@ -54,7 +53,7 @@ export async function POST(req , res) {
       brand
     })
 
-    let emailResponse = await sendEmail(email , product_url)
+    let emailResponse = await sendWelcomeEmail(email , product_url)
     return NextResponse.json({message : 'Subscribed to product'} , {status:201})
   }
   catch(err){
