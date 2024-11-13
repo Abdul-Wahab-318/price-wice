@@ -66,6 +66,9 @@ export default function SubscriptionForm() {
                     position: "bottom-center",
                     autoClose: false
                 })
+                setItemURL('')
+                setBrand('')
+                setEmail('')
 
             console.log(response)
         }
