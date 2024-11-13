@@ -79,7 +79,9 @@ export const getProductPrice = (page) =>{
 }
 
 export const sendEmail = (userEmail , product_url) =>{
-    console.log("hello it is me i am going to send the email now let us depart")
+  try{
+
+    console.log("hello it is me i am going to send the email now let us depart : " , userEmail , product_url)
     const transporter = nodemailer.createTransport({
         service: 'gmail', // use your email service like Gmail, Outlook, etc.
         port : 465,
@@ -102,7 +104,7 @@ export const sendEmail = (userEmail , product_url) =>{
         text: `Hi there! \n\nThank you for subscribing to Price Wice. We’re excited to help you keep track of product prices and save on your purchases!\nProduct to be tracked : ${product_url}\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nThe Price Wice Team`,
         html: `<p>Hi there!</p><p>Thank you for subscribing to <strong>Price Wice</strong>. We’re excited to help you keep track of product prices and save on your purchases!</p><p>Product to be tracked : ${product_url}</p></p><p>If you have any questions, feel free to reach out.</p><p>Best regards,<br>The Price Wice Team</p>`
     };
-
+  
     transporter.sendMail(mailOptions, function(err, data) {
       console.log("err :  " , err)
       console.log("email data : " , data)
@@ -114,6 +116,11 @@ export const sendEmail = (userEmail , product_url) =>{
         return data
       }
     });
+  }
+  catch(err)
+  {
+    console.log("Error sending  email : " , err)
+  }
   
 }
 
