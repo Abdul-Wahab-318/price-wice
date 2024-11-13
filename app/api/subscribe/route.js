@@ -32,7 +32,7 @@ export async function POST(req , res) {
         userEmail : email ,
         brand
       })
-      let emailRepsonse = sendEmail(email , product_url)
+      let emailRepsonse = await sendEmail(email , product_url)
       return NextResponse.json({message : 'Subscribed to product'} , {status : 201})
     }
 
@@ -54,7 +54,7 @@ export async function POST(req , res) {
       brand
     })
 
-    let emailResponse = sendEmail(email , product_url)
+    let emailResponse = await sendEmail(email , product_url)
     return NextResponse.json({message : 'Subscribed to product'} , {status:201})
   }
   catch(err){

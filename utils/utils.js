@@ -78,7 +78,7 @@ export const getProductPrice = (page) =>{
 
 }
 
-export const sendEmail = (userEmail , product_url) =>{
+export const sendEmail = async (userEmail , product_url) =>{
   try{
 
     console.log("hello it is me i am going to send the email now let us depart : " , userEmail , product_url)
@@ -105,7 +105,7 @@ export const sendEmail = (userEmail , product_url) =>{
         html: `<p>Hi there!</p><p>Thank you for subscribing to <strong>Price Wice</strong>. We’re excited to help you keep track of product prices and save on your purchases!</p><p>Product to be tracked : ${product_url}</p></p><p>If you have any questions, feel free to reach out.</p><p>Best regards,<br>The Price Wice Team</p>`
     };
   
-    transporter.sendMail(mailOptions, function(err, data) {
+    await transporter.sendMail(mailOptions, function(err, data) {
       console.log("err :  " , err)
       console.log("email data : " , data)
       if (err) {
