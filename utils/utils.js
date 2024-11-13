@@ -105,17 +105,8 @@ export const sendEmail = async (userEmail , product_url) =>{
         html: `<p>Hi there!</p><p>Thank you for subscribing to <strong>Price Wice</strong>. We’re excited to help you keep track of product prices and save on your purchases!</p><p>Product to be tracked : ${product_url}</p></p><p>If you have any questions, feel free to reach out.</p><p>Best regards,<br>The Price Wice Team</p>`
     };
   
-    await transporter.sendMail(mailOptions, function(err, data) {
-      console.log("err :  " , err)
-      console.log("email data : " , data)
-      if (err) {
-        console.log("Error " + err);
-        return null
-      } else {
-        console.log("Email sent successfully : " , data.response);
-        return data
-      }
-    });
+    let response = await transporter.sendMail(mailOptions)
+    console.log("email response : " , response)
   }
   catch(err)
   {
