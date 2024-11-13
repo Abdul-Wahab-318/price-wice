@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Send POST request
         env:
-          API_ENDPOINT: "https://price-wice-q99r.vercel.app/api/cron/daily-check"
+          API_ENDPOINT: "https://price-wice.vercel.app/api/cron/daily-check"
         run: |
           curl -X POST $API_ENDPOINT \
           -H "Content-Type: application/json" \
