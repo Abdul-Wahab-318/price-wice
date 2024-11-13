@@ -2,10 +2,10 @@ name: Run Cron Job
 
 on:
   push:
-      branches:
-      - main  # Optional: only trigger on push to main branch
+    branches:
+    - main 
   schedule:
-    - cron: "* * * * *"
+    - cron: "0 * * * *"
 
 jobs:
   send_post_request:
