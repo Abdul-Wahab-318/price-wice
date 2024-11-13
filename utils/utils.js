@@ -78,7 +78,7 @@ export const getProductPrice = (page) =>{
 
 }
 
-export const sendEmail = async (userEmail , product_url) =>{
+export const sendEmail = (userEmail , product_url) =>{
     console.log("hello it is me i am going to send the email now let us depart")
     const transporter = nodemailer.createTransport({
         service: 'gmail', // use your email service like Gmail, Outlook, etc.
