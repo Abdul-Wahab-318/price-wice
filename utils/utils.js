@@ -101,7 +101,6 @@ export const sendEmail = async (userEmail , product_url) =>{
         subject: 'Welcome to Price Wice!',
         text: `Hi there! \n\nThank you for subscribing to Price Wice. We’re excited to help you keep track of product prices and save on your purchases!\nProduct to be tracked : ${product_url}\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nThe Price Wice Team`,
         html: `<p>Hi there!</p><p>Thank you for subscribing to <strong>Price Wice</strong>. We’re excited to help you keep track of product prices and save on your purchases!</p><p>Product to be tracked : ${product_url}</p></p><p>If you have any questions, feel free to reach out.</p><p>Best regards,<br>The Price Wice Team</p>`
-    
     };
 
     transporter.sendMail(mailOptions, function(err, data) {
