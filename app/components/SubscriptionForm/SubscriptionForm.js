@@ -68,7 +68,6 @@ export default function SubscriptionForm() {
                 })
                 setItemURL('')
                 setBrand('')
-                setEmail('')
 
             console.log(response)
         }
@@ -93,7 +92,7 @@ export default function SubscriptionForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 mt-3 gap-3">
             <div>
                 <label htmlFor="" className='pb-2 block'>Your Email</label>
-                <input className='w-full border-2 border-[#eaeaea] px-4 py-2 rounded-md' type="email" required placeholder='your-email@gmail.com' onChange={e => setEmail(e.target.value)} />
+                <input value={email} className='w-full border-2 border-[#eaeaea] px-4 py-2 rounded-md' type="email" required placeholder='your-email@gmail.com' onChange={e => setEmail(e.target.value)} />
             </div>
             <div>
                 <label htmlFor="" className='pb-2 block'>Select A Brand</label>
