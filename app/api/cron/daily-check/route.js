@@ -37,64 +37,66 @@ const didPriceChange = (latest_price , old_price) =>{
 
 const sendEmailToSubscribers = async (subscriptions , content) =>{
 
-    let subscribers = subscriptions.map(subscription => subscription.userEmail).join(",")
-
-    // Create a transporter with your email provider settings
-    const transporter = nodemailer.createTransport({
-        service: 'gmail', // use your email service like Gmail, Outlook, etc.
-        port : 465,
-        secure: true,
-        secureConnection : false,
-        tls:{
-            rejectUnauthorized : true
-        },
-        auth: {
-            pass: "tzim fyta mpki lczo", // your email
-            user: "price.wice.info@gmail.com"   // your email password or app-specific password
-        }
-    });
+    try{
+        let subscribers = subscriptions.map(subscription => subscription.userEmail).join(",")
     
-    // Email options
-    const mailOptions = {
-        from: 'price.wice.info@gmail.com',    // sender address
-        to: subscribers, // list of receivers
-        subject: 'Price Update on Your Subscribed Product',
-        text: `Hi there,
-    
-            The price of the product you subscribed to, "${content.url}," has recently changed. 
-            
-            Previous Price: PKR ${content.old_price}
-            Current Price: PKR ${content.new_price}
-            Price Change: ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%
-            
-            Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.
-            
-            Best regards,  
-            The Price-Wice Team
-            
-            If you no longer wish to receive these alerts, you can unsubscribe`,
+        // Create a transporter with your email provider settings
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // use your email service like Gmail, Outlook, etc.
+            port : 465,
+            secure: true,
+            secureConnection : false,
+            tls:{
+                rejectUnauthorized : true
+            },
+            auth: {
+                pass: "tzim fyta mpki lczo", // your email pass
+                user: "price.wice.info@gmail.com"   // your email
+            }
+        });
         
-        html: `<p>Hi there,</p>
-                <p>The price of the product you subscribed to, "<strong>${content.url}</strong>," has recently changed.</p>
-                <ul>
-                    <li><strong>Previous Price:</strong> PKR ${content.old_price}</li>
-                    <li><strong>Current Price:</strong> PKR ${content.new_price}</li>
-                    <li><strong>Price Change:</strong> ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%</li>
-                </ul>
-                <p>Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.</p>
-                <p>Best regards,<br>
-                The Price-Wice Team</p>
-                <p style="font-size: 12px;">If you no longer wish to receive these alerts, you can unsubscribe </p>`
+        // Email options
+        const mailOptions = {
+            from: 'price.wice.info@gmail.com',    // sender address
+            to: subscribers, // list of receivers
+            subject: 'Price Update on Your Subscribed Product',
+            text: `Hi there,
+        
+                The price of the product you subscribed to, "${content.url}," has recently changed. 
+                
+                Previous Price: PKR ${content.old_price}
+                Current Price: PKR ${content.new_price}
+                Price Change: ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%
+                
+                Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.
+                
+                Best regards,  
+                The Price-Wice Team
+                
+                If you no longer wish to receive these alerts, you can unsubscribe`,
+            
+            html: `<p>Hi there,</p>
+                    <p>The price of the product you subscribed to, "<strong>${content.url}</strong>," has recently changed.</p>
+                    <ul>
+                        <li><strong>Previous Price:</strong> PKR ${content.old_price}</li>
+                        <li><strong>Current Price:</strong> PKR ${content.new_price}</li>
+                        <li><strong>Price Change:</strong> ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%</li>
+                    </ul>
+                    <p>Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.</p>
+                    <p>Best regards,<br>
+                    The Price-Wice Team</p>
+                    <p style="font-size: 12px;">If you no longer wish to receive these alerts, you can unsubscribe </p>`
+        
+        };
     
-    };
-
-    // Send email
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log(error);
-        }
-        console.log('Email sent: ' + info.response);
-    });
+        // Send email
+        let response = await transporter.sendMail(mailOptions)
+        console.log("email response : " , response)
+    }
+    catch(err)
+    {
+        console.log("Error sending  email : " , err)
+    }
     
 }
 
@@ -126,7 +128,8 @@ export async function POST(req , res) {
                     updatedAt : new Date()
                 })
                 const subscriptions = await Subscription.find({product_id : product._id})
-                sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
+                console.log("Sending email to subscribers : " , subscriptions.map(subscription => subscription.userEmail))
+                await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
                 console.log("price changed from " , old_price , " to " , new_price)
             }
             else{
