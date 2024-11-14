@@ -133,7 +133,7 @@ export async function POST(req , res) {
                 console.log("price changed from " , old_price , " to " , new_price)
             }
             else{
-                console.log("Product price did not change")
+                console.log("Product price did not change , time : " , new Date())
             }
         }
 
