@@ -56,3 +56,26 @@ header{
   position: relative;
   z-index: 2;
 }
+
+@media (prefers-color-scheme: dark) {
+  .gradient-text {
+    --text-gradient: linear-gradient(180deg, #555, #000);
+    background: var(--text-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: white;
+  }
+  header{
+    box-shadow: inset 0 -1px 0 0 #3e3e3e;
+  }
+  .subscription-form{
+    outline: 1px solid white;
+    outline-offset: 1px;
+    border: 1px solid white;
+  }
+  .subscription-form button {
+    border: 1px solid white;
+  }
+  .subscription-form :is( input , option , select){
+    color: black !important;
+  }
+}

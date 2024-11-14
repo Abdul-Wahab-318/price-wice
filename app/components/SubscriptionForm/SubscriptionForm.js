@@ -95,7 +95,7 @@ export default function SubscriptionForm() {
                 <input value={email} className='w-full border-2 border-[#eaeaea] px-4 py-2 rounded-md' type="email" required placeholder='your-email@gmail.com' onChange={e => setEmail(e.target.value)} />
             </div>
             <div>
-                <label htmlFor="" className='pb-2 block'>Select A Brand</label>
+                <label htmlFor="" className='pb-2 block'>Select A Brand (optional)</label>
                 <select value={brand} onChange={e=>setBrand(e.target.value)} className='w-full border-2 border-[#eaeaea] px-4 py-2 rounded-md' name="brand" id="brand" >
                     <option value="other">Select a brand</option>
                     {
