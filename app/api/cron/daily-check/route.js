@@ -39,7 +39,9 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
 
     try{
         let subscribers = subscriptions.map(subscription => subscription.userEmail).join(",")
-    
+
+        console.log("Sending email to subscribers : " , subscribers)
+
         // Create a transporter with your email provider settings
         const transporter = nodemailer.createTransport({
             service: 'gmail', // use your email service like Gmail, Outlook, etc.
@@ -91,7 +93,7 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
     
         // Send email
         let response = await transporter.sendMail(mailOptions)
-        console.log("email response : " , response)
+        console.log("email response : " , response.response)
     }
     catch(err)
     {
@@ -118,6 +120,7 @@ export async function POST(req , res) {
             const price_changed = didPriceChange(latest_price , old_price)
 
             if(price_changed){
+
                 const new_price = latest_price['discounted'] ? latest_price['discounted'] : latest_price['original']
                 const percent_change = calculateChangePercentage(new_price, old_price)
 
@@ -128,12 +131,14 @@ export async function POST(req , res) {
                     updatedAt : new Date()
                 })
                 const subscriptions = await Subscription.find({product_id : product._id})
-                console.log("Sending email to subscribers : " , subscriptions.map(subscription => subscription.userEmail))
                 await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
-                console.log("price changed from " , old_price , " to " , new_price)
+
+                console.log("Product url : " , product.url)
+                console.log("Price changed from : " , old_price , " to " , new_price)
+
             }
             else{
-                console.log("Product price did not change , time : " , new Date())
+                console.log("Product Price did not change")
             }
         }
 
