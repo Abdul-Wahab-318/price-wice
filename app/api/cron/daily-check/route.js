@@ -109,6 +109,7 @@ export async function POST(req , res) {
         const products = await Product.find()
         
         for (let product of products){
+            console.log("Product URL : " , product.url)
 
             const product_price_doc = await ProductPrice.findOne(
                 {product_id : product._id} ,
@@ -116,7 +117,7 @@ export async function POST(req , res) {
 
             const old_price = product_price_doc.price
             const latest_price = await scrapeLatestPrice(product)
-            console.log("old : " , old_price , " new : " , latest_price )
+
             const price_changed = didPriceChange(latest_price , old_price)
 
             if(price_changed){
@@ -133,7 +134,6 @@ export async function POST(req , res) {
                 const subscriptions = await Subscription.find({product_id : product._id})
                 await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
 
-                console.log("Product url : " , product.url)
                 console.log("Price changed from : " , old_price , " to " , new_price)
 
             }
