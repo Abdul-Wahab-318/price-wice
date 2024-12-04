@@ -16,8 +16,8 @@ const scrapeLatestPrice = async (product) =>{
         return product_price
     }
     catch(err){
-        console.log("error scraping latest price : " , err)
-        return null
+        console.log("error scraping latest price : " , err.message)
+        throw new Error("Error scraping Latest price")
     }
 }
 
@@ -102,51 +102,63 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
     
 }
 
+const processOneProduct = async (product) => {
+    try
+    {
+        console.log("Product URL : " , product.url)
+
+        const product_price_doc = await ProductPrice.findOne(
+            {product_id : product._id} ,
+        ).sort({createdAt : -1})//get latest
+
+        const old_price = product_price_doc.price
+        const latest_price = await scrapeLatestPrice(product)
+
+        const price_changed = didPriceChange(latest_price , old_price)
+
+        if(price_changed){
+
+            const new_price = latest_price['discounted'] ? latest_price['discounted'] : latest_price['original']
+            const percent_change = calculateChangePercentage(new_price, old_price)
+
+            const new_price_doc = await ProductPrice.create({
+                price : new_price,
+                product_id : product._id,
+                createdAt : new Date(),
+                updatedAt : new Date()
+            })
+            const subscriptions = await Subscription.find({product_id : product._id})
+            await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
+
+            console.log("Price changed from : " , old_price , " to " , new_price)
+
+        }
+        else{
+            console.log("Product Price did not change")
+        }
+    }
+    catch(err)
+    {
+        console.log(`Error processing ${product.url} : ` , err.message)
+    }
+}
+
 export async function POST(req , res) {
 
     try{
         await connectToDB()
         const products = await Product.find()
         
-        for (let product of products){
-            console.log("Product URL : " , product.url)
-
-            const product_price_doc = await ProductPrice.findOne(
-                {product_id : product._id} ,
-            ).sort({createdAt : -1})//get latest
-
-            const old_price = product_price_doc.price
-            const latest_price = await scrapeLatestPrice(product)
-
-            const price_changed = didPriceChange(latest_price , old_price)
-
-            if(price_changed){
-
-                const new_price = latest_price['discounted'] ? latest_price['discounted'] : latest_price['original']
-                const percent_change = calculateChangePercentage(new_price, old_price)
-
-                const new_price_doc = await ProductPrice.create({
-                    price : new_price,
-                    product_id : product._id,
-                    createdAt : new Date(),
-                    updatedAt : new Date()
-                })
-                const subscriptions = await Subscription.find({product_id : product._id})
-                await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
-
-                console.log("Price changed from : " , old_price , " to " , new_price)
-
-            }
-            else{
-                console.log("Product Price did not change")
-            }
+        for (let product of products)
+        {
+            await processOneProduct(product)
         }
 
-        return NextResponse.json({'message' : 'Ran cron job' }, {status: 200})
+        return NextResponse.json({'message' : 'Completed cron job' }, {status: 200})
     }
     catch(err){
         console.error(err)
-        return NextResponse.json({'message' : 'failed cron job' }, {status: 400})
+        return NextResponse.json({'message' : 'Failed cron job' }, {status: 500})
     }
 
 }

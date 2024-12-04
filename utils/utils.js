@@ -15,8 +15,13 @@ export const getProductPage = async (url) => {
       }
     }
     catch(err){
-      console.log(err)
-      return null
+      if(err.status === 404)
+      {
+        console.log("Page not found")
+        throw new Error("Page not found")
+      }
+      
+      throw new Error("Error fetching product page")
     }
 }
 
@@ -57,7 +62,6 @@ export const getProductPrice = (page) =>{
 
     for (let el of pricesMatched){
       prices.add(cleanPrice(el[0]))
-      console.log("matched : " ,el[0])
     }
   }
 
