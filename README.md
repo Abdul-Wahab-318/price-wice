@@ -25,3 +25,6 @@ Price Wice is a powerful Next.js application integrated with MongoDB that helps 
 
 **Email Service:** Nodemailer
 
+## Live Demo
+
+Check out the live version of the app: [Price wice live](https://price-wice.vercel.app/)
