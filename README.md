@@ -15,6 +15,11 @@ Price Wice is a powerful Next.js application integrated with MongoDB that helps 
 ## Tech Stack
 
 **Frontend:** Next.js
+
 **Backend:** Node.js
+
 **Database:** MongoDB
+
 **Email Service:** Nodemailer
+
+## Screenshots:
