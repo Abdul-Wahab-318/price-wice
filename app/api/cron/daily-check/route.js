@@ -59,7 +59,7 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
         
         // Email options
         const mailOptions = {
-            from: 'price.wice.info@gmail.com',    // sender address
+            from: 'Price Wice price.wice.info@gmail.com',    // sender address
             to: subscribers, // list of receivers
             subject: 'Price Update on Your Subscribed Product',
             text: `Hi there,
