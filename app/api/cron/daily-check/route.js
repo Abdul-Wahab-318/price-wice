@@ -157,12 +157,12 @@ const processOneProduct = async (product) => {
             const new_price = latest_price['discounted'] ? latest_price['discounted'] : latest_price['original']
             const percent_change = calculateChangePercentage(new_price, old_price)
 
-            // const new_price_doc = await ProductPrice.create({
-            //     price : new_price,
-            //     product_id : product._id,
-            //     createdAt : new Date(),
-            //     updatedAt : new Date()
-            // })
+            const new_price_doc = await ProductPrice.create({
+                price : new_price,
+                product_id : product._id,
+                createdAt : new Date(),
+                updatedAt : new Date()
+            })
 
             const product_price_history_docs = await ProductPrice.find(
                 {product_id : product._id},
