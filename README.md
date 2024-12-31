@@ -3,7 +3,7 @@
 Price Wice is a powerful Next.js application integrated with MongoDB that helps users track price changes of their favorite products. Users can subscribe by entering a product's URL, and the system sends email notifications whenever the product's price changes.
 
 ![Home page Screenshot](/ss-1.jpg)
-![Email screenshot](/ss-2.jpg)
+![email screenshot](/ss-2.jpg)
 
 
 ## Features
