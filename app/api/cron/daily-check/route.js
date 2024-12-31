@@ -6,7 +6,38 @@ import * as cheerio from 'cheerio';
 import nodemailer from 'nodemailer'
 import { NextResponse } from 'next/server'
 import { getProductPage , getProductPrice , calculateChangePercentage } from "@/utils/utils";
+import QuickChart from 'quickchart-js'
+import { formatDate } from "@/utils/utils";
 
+const getChartConfig = (price_history) => {
+
+    if(price_history.length === 0)
+        return null
+
+    const labels = price_history.map( doc => formatDate(doc.createdAt))
+    const data = price_history.map( doc => doc.price)
+
+    return { type : 'line' , data : { "labels" : labels , datasets: [{ label : 'Price' , "data" : data ,fill:false }] }}
+}
+
+const getChartImgURL = async (price_history) => {
+    const myChart = new QuickChart();
+    const config = getChartConfig(price_history)
+
+    if(!config)
+        return null
+
+    myChart
+    .setConfig(config)
+    .setWidth(550)
+    .setHeight(250)
+    .setBackgroundColor('transparent');
+    
+    const chartImageUrl = await myChart.getUrl();
+    console.log("chart image url : " , chartImageUrl)
+    return chartImageUrl
+
+}
 
 const scrapeLatestPrice = async (product) =>{
     try{
@@ -32,14 +63,12 @@ const didPriceChange = (latest_price , old_price) =>{
     else
         return (latest_price['original'] !== old_price)
     
-
 }
 
 const sendEmailToSubscribers = async (subscriptions , content) =>{
 
     try{
         let subscribers = subscriptions.map(subscription => subscription.userEmail).join(",")
-
         console.log("Sending email to subscribers : " , subscribers)
 
         // Create a transporter with your email provider settings
@@ -70,6 +99,9 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
                 Current Price: PKR ${content.new_price}
                 Price Change: ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%
                 
+                ${ content.chartImgUrl ? `Price History: ` : ""}
+                ${ content.chartImgUrl ? `<img src=${content.chartImgUrl} />` : ""}
+
                 Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.
                 
                 Best regards,  
@@ -84,6 +116,10 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
                         <li><strong>Current Price:</strong> PKR ${content.new_price}</li>
                         <li><strong>Price Change:</strong> ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%</li>
                     </ul>
+                    <br/>
+                    ${ content.chartImgUrl ? `<h3>Price History:</h3>` : ""}
+                    ${ content.chartImgUrl ? `<img src=${content.chartImgUrl} />` : ""}
+                    <br/>
                     <p>Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.</p>
                     <p>Best regards,<br>
                     The Price-Wice Team</p>
@@ -127,11 +163,19 @@ const processOneProduct = async (product) => {
                 createdAt : new Date(),
                 updatedAt : new Date()
             })
+
+            const product_price_history_docs = await ProductPrice.find(
+                {product_id : product._id},
+                {price : 1 , createdAt : 1 , _id : 0}
+            )
+            .sort({createdAt : 1})
+
+            console.log("Product Price history :" , product_price_history_docs )
+            const chartImgUrl = await getChartImgURL(product_price_history_docs)
             const subscriptions = await Subscription.find({product_id : product._id})
-            await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url})
+            await sendEmailToSubscribers(subscriptions, {new_price , old_price , percent_change , url : product.url , chartImgUrl : chartImgUrl})
 
             console.log("Price changed from : " , old_price , " to " , new_price)
-
         }
         else{
             console.log("Product Price did not change")
