@@ -2,12 +2,23 @@ import axios from "axios"
 import * as cheerio from 'cheerio';
 import nodemailer from 'nodemailer'
 
+const regexPattern = /(?:PKR|Rs|USD|\$|£)\.?\s?[0-9][0-9.,]*/
+const regexPatternGlobal = /(?:PKR|Rs|USD|\$|£)\.?\s?[0-9][0-9.,]*/g
+
 export const getProductPage = async (url) => {
     try{
-      const response = await axios.get(url)
-  
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': 'https://www.google.com/',
+        }
+      });
+
       if(response.status === 200)
         return response.data
+
       else
       {
         console.log("error fetching product page")
@@ -15,6 +26,7 @@ export const getProductPage = async (url) => {
       }
     }
     catch(err){
+      console.log("error fetching page : " ,err)
       if(err.status === 404)
       {
         console.log("Page not found")
@@ -27,39 +39,45 @@ export const getProductPage = async (url) => {
 
 export const getProductPrice = (page) =>{
 
-  const $ = cheerio.load(page);
+  const pageCleaned = page.replace(/(&nbsp;)/g, "")
+  const $ = cheerio.load(pageCleaned);
+  $('.installment-block').remove()
+  $('script').remove() // remove stupid useless tags that make life harder for me
+  $('style').remove()
+  $('template').remove()
+  $('footer').remove()
+  $('svg').remove()
+  $('link').remove()
+  $('a').remove()
   $('.baadmay-gateway-wrapper').remove() // remove installment plan information
-  $('body').find('script').remove() // remove stupid useless script tags that make life harder for me
-  $('body').find('a').remove() // remove
+
   const prices = new Set()
 
-  //if website is built with shopify the price will be inside this element
-  let priceWrapper = $('.t4s-product-price')
+  let shopifyPriceWrapper = $('.t4s-product-price') //if website is built with shopify the price will be inside this element
+  let jDotPriceWrapper = $('.product-info-price') //special edge case for J.
+  let priceWrapper = shopifyPriceWrapper.length !== 0 ? shopifyPriceWrapper : jDotPriceWrapper
 
-  if(priceWrapper.length > 0){
-
+  if( priceWrapper.length !== 0 )
+  {
     let priceWrapperText = priceWrapper.text()
-    let priceMatched =  priceWrapperText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
+    let priceMatched =  priceWrapperText.match(regexPattern)
 
-    if(priceMatched){
+    if(priceMatched)
       prices.add(cleanPrice(priceMatched[0]))
-    }
 
     priceWrapper.children().each((ind , el) =>{
 
       const innerText = $(el).text()
-      let priceMatched = innerText.match(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/)
-
+      let priceMatched = innerText.match(regexPattern)
       if(priceMatched)
         prices.add(cleanPrice(priceMatched[0]))
-
     })
+
   }
-  else{
-
-    let body = String($('body').html())
-    let pricesMatched = body.matchAll(/(PKR\.?\s?[0-9.,]+|Rs\.?\s?[0-9.,]+)/g)
-
+  else
+  {
+    let body_text = $('body').text().replace(/\s+/g , " ")
+    let pricesMatched = body_text.matchAll(regexPatternGlobal)
     for (let el of pricesMatched){
       prices.add(cleanPrice(el[0]))
     }
@@ -69,7 +87,8 @@ export const getProductPrice = (page) =>{
   console.log("sorted prices : " , sortedPrices)
 
   //possible discount exists
-  if(sortedPrices.length >= 2){
+  if(sortedPrices.length >= 2)
+  {
     let normalPrice = sortedPrices[0]
     let discountedPrice = sortedPrices[1]
 
@@ -102,7 +121,7 @@ export const sendWelcomeEmail = async (userEmail , product_url) =>{
     
     // Email options
     const mailOptions = {
-        from: 'price.wice.info@gmail.com',    // sender address
+        from: 'Price Wice price.wice.info@gmail.com',    // sender address
         to: userEmail,
         subject: 'Welcome to Price Wice!',
         text: `Hi there! \n\nThank you for subscribing to Price Wice. We’re excited to help you keep track of product prices and save on your purchases!\nProduct to be tracked : ${product_url}\n\nIf you have any questions, feel free to reach out.\n\nBest regards,\nThe Price Wice Team`,

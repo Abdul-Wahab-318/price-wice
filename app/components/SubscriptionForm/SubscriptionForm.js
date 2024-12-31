@@ -30,7 +30,7 @@ export default function SubscriptionForm() {
         "sapphire",
         "khaadi",
         "bonanzasatrangi",
-        //"junaidjamshed",
+        "junaidjamshed",
         "ethnic",
         "nishatlinen",
         "beechtree",
