@@ -68,9 +68,7 @@ const didPriceChange = (latest_price , old_price) =>{
 const sendEmailToSubscribers = async (subscriptions , content) =>{
 
     try{
-        console.log("chart image url : " , content.chartImgUrl)
         let subscribers = subscriptions.map(subscription => subscription.userEmail).join(",")
-
         console.log("Sending email to subscribers : " , subscribers)
 
         // Create a transporter with your email provider settings
