@@ -99,6 +99,7 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
                 Current Price: PKR ${content.new_price}
                 Price Change: ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%
                 
+                ${ content.chartImgUrl ? `Price History: ` : ""}
                 ${ content.chartImgUrl ? `<img src=${content.chartImgUrl} />` : ""}
 
                 Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.
@@ -116,6 +117,7 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
                         <li><strong>Price Change:</strong> ${content.percent_change > 0 ? 'Decreased' : 'Increased'} by ${Math.abs(content.percent_change)}%</li>
                     </ul>
                     <br/>
+                    ${ content.chartImgUrl ? `<h3>Price History:</h3>` : ""}
                     ${ content.chartImgUrl ? `<img src=${content.chartImgUrl} />` : ""}
                     <br/>
                     <p>Thank you for subscribing to Price-Wice alerts. We’re here to keep you updated on the latest price changes for your favorite products.</p>
