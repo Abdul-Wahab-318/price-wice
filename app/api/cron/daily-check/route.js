@@ -52,8 +52,8 @@ const sendEmailToSubscribers = async (subscriptions , content) =>{
                 rejectUnauthorized : true
             },
             auth: {
-                pass: "tzim fyta mpki lczo", // your email pass
-                user: "price.wice.info@gmail.com"   // your email
+                pass: process.env.EMAIL_PASS, // your email pass
+                user: process.env.EMAIL_ADDRESS   // your email
             }
         });
         

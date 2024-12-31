@@ -114,8 +114,8 @@ export const sendWelcomeEmail = async (userEmail , product_url) =>{
             rejectUnauthorized : true
         },
         auth: {
-            user: "price.wice.info@gmail.com", // your email
-            pass: "tzim fyta mpki lczo"    // your email password or app-specific password
+          pass: process.env.EMAIL_PASS, // your email pass
+          user: process.env.EMAIL_ADDRESS   // your email
         }
     });
     
