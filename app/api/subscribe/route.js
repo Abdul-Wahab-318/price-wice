@@ -45,7 +45,7 @@ export async function POST(req , res) {
       return NextResponse.json({message : "Could not find product price on the website. Are you sure the link is correct ?"} , {status:400})
     }
 
-    let new_product = await Product.create({url : product_url})
+    let new_product = await Product.create({url : product_url , brand : brand})
     let new_price = await ProductPrice.create({product_id : new_product._id , price : price['discounted'] ? price['discounted'] : price['original'] })
     let subscription = await Subscription.create({
       product_id : new_product._id ,

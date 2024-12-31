@@ -7,6 +7,12 @@ const ProductSchema = new Schema({
         required : [true , 'URL is required'],
         minLength : [2 , 'min length is 2 characters']
     },
+    brand : {
+        type : String ,
+        default : 'other',
+        minLength : [2 , 'min length is 2 characters'],
+        maxLength : [100 , 'max length is 100 characters']
+    },
     currency : {
         type : String ,
         default : 'Rs.'

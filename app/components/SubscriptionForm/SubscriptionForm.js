@@ -58,13 +58,13 @@ export default function SubscriptionForm() {
         try{
             setLoading(true)
             let parsedURL = new URL(itemURL)
-            let body = { brand : brand , url : itemURL , email}
+            let body = { brand : brand !== '' ? brand : 'other' , url : itemURL , email}
             let response = await axios.post('/api/subscribe/' , body)
 
             if(response.status === 201)
                 toast.success(`Subscribed ! \n Please check your inbox or spam folder for confirmation` , {
                     position: "bottom-center",
-                    autoClose: false
+                    autoClose: true
                 })
                 setItemURL('')
                 setBrand('')
