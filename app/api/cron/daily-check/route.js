@@ -47,7 +47,7 @@ const scrapeLatestPrice = async (product) =>{
         return product_price
     }
     catch(err){
-        console.log("error scraping latest price : " , err.message)
+        console.log(`error scraping latest price for ${product.url} : ` , err.message)
         throw new Error("Error scraping Latest price")
     }
 }
@@ -191,7 +191,7 @@ export async function POST(req , res) {
 
     try{
         await connectToDB()
-        const products = await Product.find()
+        const products = await Product.find({ active : true })
         
         for (let product of products)
         {
