@@ -1,3 +1,4 @@
+import Product from "@/models/Product";
 import axios from "axios"
 import * as cheerio from 'cheerio';
 import nodemailer from 'nodemailer'
@@ -29,8 +30,8 @@ export const getProductPage = async (url) => {
       console.log("error fetching page : " ,err)
       if(err.status === 404)
       {
-        console.log("Page not found")
-        throw new Error("Page not found")
+        console.log(url , " : Page not found")
+        let updated_product = await Product.updateOne({ url : url } , { $set : { active : false } })
       }
       
       throw new Error("Error fetching product page")
